@@ -1,0 +1,13 @@
+# Node
+node_modules/
+npm-debug.log
+
+# Builds
+dist/
+.vite
+
+# Env
+.env
+
+# macOS
+.DS_Store
