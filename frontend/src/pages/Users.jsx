@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { FaEdit, FaTrashAlt, FaSearch } from 'react-icons/fa';
 import api from '../services/api';
+import './Users.css';
 
 const Users = () => {
-  const [users, setUsers] = useState([]);
-  const navigate = useNavigate();
+  const [users, setUsers]     = useState([]);
+  const [search, setSearch]   = useState('');
+  const navigate              = useNavigate();
 
+  // Carrega usuários
   useEffect(() => {
     const load = async () => {
       try {
@@ -18,43 +22,81 @@ const Users = () => {
     load();
   }, [navigate]);
 
+  // Exclui usuário
   const handleDelete = async id => {
     if (!window.confirm('Excluir este usuário?')) return;
-    await api.delete(\`/users/\${id}\`);
-    setUsers(users.filter(u => u.id !== id));
+    try {
+      await api.delete('/users/' + id);
+      setUsers(users.filter(u => u.id !== id));
+    } catch (err) {
+      console.error('Erro ao excluir:', err);
+      alert('Falha ao excluir usuário.');
+    }
   };
 
+  // Filtra pelo nome ou e-mail
+  const filtered = users.filter(u =>
+    u.name.toLowerCase().includes(search.toLowerCase()) ||
+    u.email.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div style={{ padding: 20 }}>
+    <div className="users-page">
       <h1>Gestão de Usuários</h1>
-      <Link to="/users/new" style={{ marginBottom: 10, display: 'inline-block' }}>+ Novo Usuário</Link>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+
+      <div className="users-controls">
+        <div className="search-box">
+          <FaSearch className="icon" />
+          <input
+            type="text"
+            placeholder="Buscar usuário..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
+        <button className="btn-new" onClick={() => navigate('/users/new')}>
+          + Novo Usuário
+        </button>
+      </div>
+
+      <table className="users-table">
         <thead>
           <tr>
-            <th style={{ border: '1px solid #ddd', padding: 8 }}>ID</th>
-            <th style={{ border: '1px solid #ddd', padding: 8 }}>Nome</th>
-            <th style={{ border: '1px solid #ddd', padding: 8 }}>Email</th>
-            <th style={{ border: '1px solid #ddd', padding: 8 }}>Perfil</th>
-            <th style={{ border: '1px solid #ddd', padding: 8 }}>Ações</th>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Perfil</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
-          {users.map(u => (
+          {filtered.map(u => (
             <tr key={u.id}>
-              <td style={{ border: '1px solid #ddd', padding: 8 }}>{u.id}</td>
-              <td style={{ border: '1px solid #ddd', padding: 8 }}>{u.name}</td>
-              <td style={{ border: '1px solid #ddd', padding: 8 }}>{u.email}</td>
-              <td style={{ border: '1px solid #ddd', padding: 8 }}>{u.role}</td>
-              <td style={{ border: '1px solid #ddd', padding: 8 }}>
-                <Link to={\`/users/\${u.id}\`} style={{ marginRight: 8 }}>Editar</Link>
-                <button onClick={() => handleDelete(u.id)}>Excluir</button>
+              <td>{u.id}</td>
+              <td>{u.name}</td>
+              <td>{u.email}</td>
+              <td>{u.role}</td>
+              <td className="actions">
+                <button
+                  className="action-btn edit"
+                  onClick={() => navigate(`/users/${u.id}`)}
+                >
+                  <FaEdit />
+                </button>
+                <button
+                  className="action-btn delete"
+                  onClick={() => handleDelete(u.id)}
+                >
+                  <FaTrashAlt />
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
-  );
+);
+
 };
 
 export default Users;

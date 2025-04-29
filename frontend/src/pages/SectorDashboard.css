@@ -1,0 +1,43 @@
+.dashboard-page {
+    padding: 24px;
+  }
+  
+  .sector-name {
+    text-transform: capitalize;
+  }
+  
+  .dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+  
+  .dashboard-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #333;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .dashboard-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  
+  .card-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+  
+  .card-label {
+    font-weight: 500;
+    text-align: center;
+  }
+  

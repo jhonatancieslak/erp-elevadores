@@ -1,52 +1,81 @@
+// src/pages/Login.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import './Login.css';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
+      // 1) Chama a API de login
       const response = await api.post('/auth/login', { email, password });
-      localStorage.setItem('token', response.data.token);
-      navigate('/dashboard');
+      console.log('Resposta /auth/login:', response.data);
+
+      const { token, sector } = response.data;
+
+      // 2) Valida se o setor veio
+      if (!sector) {
+        throw new Error('Nenhum setor associado ao usuário');
+      }
+
+      // 3) Usa o contexto para armazenar token e setor
+      login(token, sector);
+
+      // 4) Redireciona para painel setorial
+      navigate(`/${sector}/dashboard`);
     } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.error || 'Erro no login');
+      console.error('Erro no login:', err);
+      const msg = err.response?.data?.error || err.message || 'Usuário ou senha inválidos';
+      setError(msg);
+      setTimeout(() => setError(''), 3000);
     }
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', background: '#f5f5f5' }}>
-      <form onSubmit={handleSubmit} style={{ width: 300, padding: 20, background: '#fff', borderRadius: 8, boxShadow: '0 2px 8px rgba(251, 250, 250, 0.1)' }}>
-        <h2 style={{ textAlign: 'center', marginBottom: 20 }}>Login</h2>
-        {error && <p style={{ color: 'red', marginBottom: 15 }}>{error}</p>}
-        <div style={{ marginBottom: 15 }}>
-          <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
-            style={{ width: '100%', padding: 8, marginTop: 5, boxSizing: 'border-box' }}
-          />
-        </div>
-        <div style={{ marginBottom: 20 }}>
-          <label>Senha</label>
-          <input
-            type="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-            style={{ width: '100%', padding: 8, marginTop: 5, boxSizing: 'border-box' }}
-          />
-        </div>
-        <button type="submit" style={{ width: '100%', padding: 10 }}>Entrar</button>
-      </form>
+    <div className="login-page">
+      <div className="login-wrapper">
+        <form className="login-form" onSubmit={handleSubmit}>
+          <img src="/logo.png" alt="Logo" className="login-logo" />
+
+          {error && <div className="login-toast">{error}</div>}
+
+          <div className="login-field">
+            <label>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              autoFocus
+            />
+          </div>
+
+          <div className="login-field">
+            <label>Senha</label>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button className="login-button" type="submit">
+            Entrar
+          </button>
+        </form>
+        <footer className="login-footer">
+          Desenvolvimento: Jhonatan Cieslak
+        </footer>
+      </div>
     </div>
   );
 };
