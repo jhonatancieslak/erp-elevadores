@@ -10,19 +10,19 @@ app.use(express.json());
 const authRouter = require('./routes/auth');
 app.use('/auth', authRouter);
 
-// middleware JWT
+// middleware de JWT
 const verifyToken = require('./middleware/auth');
-
-// rota de licença (protegida)
-const licenseRouter = require('./routes/license');
-app.use('/license', verifyToken, licenseRouter);
 
 // rotas protegidas de usuários
 const usersRouter = require('./routes/users');
 app.use('/users', verifyToken, usersRouter);
 
 // rota pública de teste
-app.get('/', (req, res) => res.json({ message: 'API funcionando!' }));
+app.get('/', (req, res) => {
+  res.json({ message: 'API funcionando!' });
+});
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log('Servidor rodando na porta ' + PORT));
+app.listen(PORT, () => {
+  console.log('Servidor rodando na porta ' + PORT);
+});

@@ -4,25 +4,38 @@ import api from '../services/api';
 
 const Dashboard = () => {
   const [users, setUsers] = useState([]);
+  const [license, setLicense] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
-        const response = await api.get('/users');
-        setUsers(response.data);
+        // 1) busca licença
+        const licRes = await api.get('/license');
+        setLicense(licRes.data.license);
+
+        // 2) busca usuários
+        const usersRes = await api.get('/users');
+        setUsers(usersRes.data);
       } catch (err) {
         console.error(err);
-        // Se der 401/403, volta para login
+        // erro 401/403 em qualquer chamada, volta ao login
+        localStorage.removeItem('token');
         navigate('/');
       }
     };
-    fetchUsers();
+    fetchData();
   }, [navigate]);
 
   return (
     <div style={{ padding: 20 }}>
-      <h1>Usuários Cadastrados</h1>
+      <h1>Dashboard</h1>
+      {license && (
+        <p>
+          Licença válida até: <strong>{new Date(license.end_date).toLocaleDateString()}</strong>
+        </p>
+      )}
+      <h2>Usuários Cadastrados</h2>
       <ul>
         {users.map(u => (
           <li key={u.id}>

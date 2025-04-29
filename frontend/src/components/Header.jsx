@@ -1,9 +1,12 @@
 import React from 'react';
 import { FaBell, FaSignOutAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
+  const navigate = useNavigate();
   const handleLogout = () => {
-    // TODO: limpar sessão e redirecionar para login
+    localStorage.removeItem('token');
+    navigate('/');
   };
 
   return (
